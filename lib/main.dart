@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:turn_based_snake/model/Snake.dart';
-import 'package:turn_based_snake/model/SnakeGraphic.dart';
 import 'package:turn_based_snake/painter/Circle.dart';
 import 'package:turn_based_snake/widgets/CardSelection.dart';
-import 'package:turn_based_snake/widgets/cards/BaseCard.dart';
-import 'package:turn_based_snake/widgets/cards/MoveDownCard.dart';
-import 'package:turn_based_snake/widgets/cards/MoveLeftCard.dart';
-import 'package:turn_based_snake/widgets/cards/MoveRightCard.dart';
-import 'package:turn_based_snake/widgets/cards/MoveUpCard.dart';
-import 'package:turn_based_snake/widgets/Targets.dart';
 
 import 'events/Event.dart';
 
@@ -44,7 +37,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     snake1.pos.add(Offset(2, 6));
     snake1.pos.add(Offset(2, 5));
-    snake1.pos.add(Offset(2, 4));
     for (int x = 0; x < nrX; x++) {
       for (int y = 0; y < nrY; y++) {
         circles.add(createCircle(x, y));
@@ -124,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: <Widget>[
           Container(
-            height: 400,
+            height: 370,
             child: Stack(children: [
               Stack(
                 children: circles,

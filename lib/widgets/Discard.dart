@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:turn_based_snake/widgets/cards/BaseCard.dart';
 
-class Target extends StatefulWidget {
-  Target({this.model}) : super(key: GlobalKey<TargetState>());
-  final TargetModel model;
+class Discard extends StatefulWidget {
+  Discard({this.model}) : super(key: GlobalKey<DiscardState>());
+  final DiscardModel model;
   @override
-  TargetState createState() => TargetState();
+  DiscardState createState() => DiscardState();
 }
 
-class TargetState extends State<Target> {
+class DiscardState extends State<Discard> {
   final Color inactiveColor = Colors.red;
   final Color activeColor = Colors.blue;
   bool active = false;
-  BaseCard baseCard = null;
+  BaseCard baseCard;
 
   setActive() {
     setState(() {
@@ -50,7 +50,7 @@ class TargetState extends State<Target> {
             height: 60,
             child: Container(
               color: getColor(),
-              child: baseCard,
+              child: baseCard == null ? Icon(Icons.delete) : baseCard,
             ),
           ),
         );
@@ -66,8 +66,7 @@ class TargetState extends State<Target> {
         setInActive();
       },
       onAccept: (BaseCard data) {
-        addCard(data);
-        widget.model.callback(data, widget.model.id);
+        widget.model.callback(data);
       },
     );
   }
@@ -83,8 +82,7 @@ class TargetState extends State<Target> {
   }
 }
 
-class TargetModel {
-  final Function(BaseCard, int) callback;
-  final int id;
-  TargetModel(this.callback, this.id);
+class DiscardModel {
+  final Function(BaseCard) callback;
+  DiscardModel(this.callback);
 }

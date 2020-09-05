@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:turn_based_snake/deck/deck.dart';
 import 'package:turn_based_snake/events/Event.dart';
+import 'package:turn_based_snake/widgets/Discard.dart';
 import 'package:turn_based_snake/widgets/Target.dart';
 import 'package:turn_based_snake/widgets/cards/BaseCard.dart';
-import 'package:turn_based_snake/widgets/cards/MoveDownCard.dart';
-import 'package:turn_based_snake/widgets/cards/MoveLeftCard.dart';
-import 'package:turn_based_snake/widgets/cards/MoveRightCard.dart';
-import 'package:turn_based_snake/widgets/cards/MoveUpCard.dart';
 
 class CardSelection extends StatefulWidget {
   final CardSelectionModel cardSelectionModel;
@@ -18,12 +16,11 @@ class CardSelection extends StatefulWidget {
 
 class _CardSelectionState extends State<CardSelection> {
   Map<int, Event> map = new Map();
+  Deck deck = new Deck();
   List<Target> targets = [];
   List<BaseCard> baseCards = [];
-  var left = MoveLeftCard(1);
-  var right = MoveRightCard(2);
-  var down = MoveDownCard(3);
-  var up = MoveUpCard(4);
+  Discard discard;
+  bool enabled = false;
 
   addCard(BaseCard baseCard) {
     setState(() {
@@ -37,6 +34,10 @@ class _CardSelectionState extends State<CardSelection> {
   removeCard(BaseCard baseCard, final int id) {
     setState(() {
       baseCards.remove(baseCard);
+      GlobalKey<DiscardState> discardState = discard.key;
+      if (discardState.currentState.baseCard == baseCard) {
+        discardState.currentState.removeCard();
+      }
       targets.where((element) => element.model.id != id).forEach((element) {
         GlobalKey<TargetState> key = element.key;
         if (key.currentState.baseCard == baseCard) {
@@ -47,20 +48,44 @@ class _CardSelectionState extends State<CardSelection> {
     });
   }
 
+  addToDiscard(final BaseCard event) {
+    removeCard(event, event.id);
+    GlobalKey<DiscardState> discardState = discard.key;
+    discardState.currentState.addCard(event);
+  }
+
   applyEvent(final BaseCard event, final int id) {
     removeCard(event, id);
     map.putIfAbsent(id, () => event.getEvent());
     if (map.length == widget.cardSelectionModel.totalTargets) {
-      widget.cardSelectionModel.callback(map.values.toList());
+      setState(() {
+        this.enabled = true;
+      });
     }
+  }
+
+  finishedEvent() {
+    GlobalKey<DiscardState> key = discard.key;
+    key.currentState.removeCard();
+    widget.cardSelectionModel.callback(map.values.toList());
+    targets.forEach((element) {
+      GlobalKey<TargetState> key = element.key;
+      if (key.currentState.baseCard != null) {
+        removeCard(key.currentState.baseCard, key.currentState.baseCard.id);
+        baseCards.remove(key.currentState.baseCard);
+        baseCards.add(deck.deck.removeLast());
+      }
+    });
   }
 
   @override
   void initState() {
-    baseCards.add(left);
-    baseCards.add(right);
-    baseCards.add(up);
-    baseCards.add(down);
+    discard = new Discard(model: new DiscardModel(addToDiscard));
+    baseCards.add(deck.deck.removeLast());
+    baseCards.add(deck.deck.removeLast());
+    baseCards.add(deck.deck.removeLast());
+    baseCards.add(deck.deck.removeLast());
+    baseCards.add(deck.deck.removeLast());
     targets.add(new Target(
         model: TargetModel(
       applyEvent,
@@ -103,6 +128,15 @@ class _CardSelectionState extends State<CardSelection> {
             addCard(data);
           },
         ),
+        Row(
+          children: <Widget>[
+            discard,
+            RaisedButton(
+              onPressed: enabled ? finishedEvent : null,
+              child: Text("Done"),
+            ),
+          ],
+        )
       ],
     );
   }

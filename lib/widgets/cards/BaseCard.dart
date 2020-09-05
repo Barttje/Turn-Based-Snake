@@ -16,7 +16,7 @@ abstract class BaseCard extends StatelessWidget {
         icon: getIcon(),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(3.0),
+        padding: const EdgeInsets.all(1.0),
         child: CardImage(
           icon: getIcon(),
         ),
@@ -33,8 +33,8 @@ class CardImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        width: 60,
-        height: 60,
+        width: 50,
+        height: 50,
         child: Container(
           child: icon,
           color: Colors.blue,
